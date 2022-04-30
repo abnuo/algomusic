@@ -190,7 +190,7 @@ if __name__ == "__main__":
     pass
   print(tomml(song))
   midi = tomidi(song)
-  fn = f"{str(hash(title)&0xffff).zfill(5)}.mid"
+  fn = f"{str(int(blitzrand.RndSeed())&0xffff).zfill(5)}.mid"
   with open(fn,"wb") as f:
     midi.writeFile(f)
   print("Saved to",fn)
