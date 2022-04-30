@@ -14,8 +14,6 @@ try:
 except:
   nltk.download('words')
 
-threads = []
-song = []
 notes = ["c","d","e","f","g"]
 pitchlists = {
   "normal": [1.0,1.10,1.25,1.30,1.45],
@@ -62,10 +60,6 @@ mmlinstr = {
   f"{soundsdir}/tremolo.wav": "@1 @E1,5,100,0,250",
   f"{soundsdir}/violin.wav": "@3 @E1,5,100,0,250"
 }
-try:
-  title = sys.argv[1]
-except:
-  title = random.choice(words.words()).capitalize()+" "+random.choice(words.words()).capitalize()
 
 def play(song,instrument,speed):
   for i,v in enumerate(song):
@@ -101,10 +95,12 @@ def printinfo(song):
   for i in song[1]:
     print(i[0])
 def playsong(song,speed):
+  threads = []
   for i in song:
     x = threading.Thread(target=play,args=(i[1],i[0],speed))
     threads.append(x)
     x.start()
+  return threads
 def tomml(song):
   mml = f"t{round(song[0]*150)} l8 "
   for i in song[1]:
@@ -114,11 +110,15 @@ def tomml(song):
   return mml[:-1]
 
 if __name__ == "__main__":
+  try:
+    title = sys.argv[1]
+  except:
+    title = random.choice(words.words()).capitalize()+" "+random.choice(words.words()).capitalize()
   sound.stop_all_effects()
   song = generate(title)
   printinfo(song)
   try:
-    playsong(song[1],song[0])
+    threads = playsong(song[1],song[0])
   except:
     pass
   print(tomml(song))
