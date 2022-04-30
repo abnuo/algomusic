@@ -186,7 +186,9 @@ if __name__ == "__main__":
     pass
   print(tomml(song))
   midi = tomidi(song)
-  with open("algomusic.mid","wb") as f:
+  fn = f"{str(hash(title)&0xffff).zfill(5)}.mid"
+  with open(fn,"wb") as f:
     midi.writeFile(f)
+  print("Saved to",fn)
   for x in threads:
     x.join()
