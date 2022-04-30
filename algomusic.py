@@ -165,13 +165,20 @@ def tomidi(song):
         midi.addNote(0,i,midinotes[notes.index(n)],t,0.25,127)
       t += 0.25
   return midi
+def gentitle():
+  return random.choice(words.words()).capitalize()+" "+random.choice(words.words()).capitalize()
 
 if __name__ == "__main__":
   try:
     title = sys.argv[1]
   except:
-    title = random.choice(words.words()).capitalize()+" "+random.choice(words.words()).capitalize()
+    title = gentitle()
   sound.stop_all_effects()
+  print(sys.argv)
+  if sys.argv[0].startswith("/private/"):
+    title = input("> ")
+    if title == "":
+      title = gentitle()
   song = generate(title)
   printinfo(song)
   try:
