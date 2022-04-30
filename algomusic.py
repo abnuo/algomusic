@@ -4,6 +4,10 @@ import sys
 import os
 import random
 import glob
+import struct
+import math
+import numpy as np
+from midiutil import MIDIFile
 try:
   import sound
 except:
@@ -60,6 +64,45 @@ mmlinstr = {
   f"{soundsdir}/tremolo.wav": "@1 @E1,5,100,0,250",
   f"{soundsdir}/violin.wav": "@3 @E1,5,100,0,250"
 }
+midinstr = {
+  f"{soundsdir}/bass1.wav": 118,
+  f"{soundsdir}/bass2.wav": 118,
+  f"{soundsdir}/bass3.wav": 117,
+  f"{soundsdir}/click2.wav": 115,
+  f"{soundsdir}/click3.wav": 115,
+  f"{soundsdir}/click4.wav": 115,
+  f"{soundsdir}/snare1.wav": 118,
+  f"{soundsdir}/snare2.wav": 118,
+  f"{soundsdir}/snare3.wav": 118,
+  f"{soundsdir}/sound1.wav": 115,
+  f"{soundsdir}/sound2.wav": 155,
+  f"{soundsdir}/sound3.wav": 155,
+  f"{soundsdir}/sound4.wav": 155,
+  f"{soundsdir}/taik2.wav": 116,
+  f"{soundsdir}/01_wooooqq.wav": 73,
+  f"{soundsdir}/02_hibuzzbipqq.wav": 81,
+  f"{soundsdir}/04_tik2qq.wav": 80,
+  f"{soundsdir}/05_snq.wav": 115,
+  f"{soundsdir}/05_tribipqq.wav": 82,
+  f"{soundsdir}/06_tangcutqq.wav": 81,
+  f"{soundsdir}/07_tribeepcutqqwav.wav": 82,
+  f"{soundsdir}/bell2.wav": 14,
+  f"{soundsdir}/celest.wav": 8,
+  f"{soundsdir}/churchstring.wav": 48,
+  f"{soundsdir}/glock.wav": 9,
+  f"{soundsdir}/harp.wav": 46,
+  f"{soundsdir}/koto.wav": 107,
+  f"{soundsdir}/mutedguit.wav": 28,
+  f"{soundsdir}/nylonguit.wav": 24,
+  f"{soundsdir}/organ1.wav": 16,
+  f"{soundsdir}/piano1.wav": 0,
+  f"{soundsdir}/pickedbass.wav": 34,
+  f"{soundsdir}/mutedguit.wav": 28,
+  f"{soundsdir}/pizzicato.wav": 45,
+  f"{soundsdir}/tremolo.wav": 44,
+  f"{soundsdir}/violin.wav": 40
+}
+midinotes = [72,74,76,77,79]
 
 def play(song,instrument,speed):
   for i,v in enumerate(song):
@@ -108,6 +151,20 @@ def tomml(song):
       mml += mmlinstr[i[0]]+" "
     mml += "<"+"".join(i[1])+";"
   return mml[:-1]
+def tomidi(song):
+  midi = MIDIFile(1,adjust_origin=True)
+  midi.addTempo(0,0,round(song[0]*65))
+  for i,v in enumerate(song[1]):
+    if v[0] in midinstr:
+      midi.addProgramChange(0,i,0,midinstr[v[0]])
+    else:
+      midi.addProgramChange(0,i,0,0)
+    t = 0
+    for x,n in enumerate(v[1]):
+      if not n == "r":
+        midi.addNote(0,i,midinotes[notes.index(n)],t,0.25,127)
+      t += 0.25
+  return midi
 
 if __name__ == "__main__":
   try:
@@ -122,5 +179,8 @@ if __name__ == "__main__":
   except:
     pass
   print(tomml(song))
+  midi = tomidi(song)
+  with open("algomusic.mid","wb") as f:
+    midi.writeFile(f)
   for x in threads:
     x.join()
