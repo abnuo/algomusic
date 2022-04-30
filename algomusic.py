@@ -3,6 +3,7 @@ import time
 import sys
 import os
 import random
+import blitzrand
 import glob
 import struct
 import math
@@ -117,16 +118,19 @@ def play(song,instrument,speed):
       pass
 def generate(seed):
   song = []
-  random.seed(seed)
+  if not type(seed) == int:
+    blitzrand.SeedRnd(hash(seed))
+  else:
+    blitzrand.SeedRnd(seed)
   title = seed
-  speed = random.uniform(0.5,2.0)
+  speed = blitzrand.Rnd(0.5,2.0)
   for i in range(4):
-    cinst = random.choice(sounds)
+    cinst = blitzrand.choice(sounds)
     snotes = []
     for i in range(100):
-      rest = random.randint(0,1)
+      rest = blitzrand.Rand(0,1)
       if not rest == 1:
-        note = random.choice(notes)
+        note = blitzrand.choice(notes)
         snotes.append(note)
       else:
         snotes.append("r")
