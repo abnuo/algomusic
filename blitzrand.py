@@ -23,7 +23,7 @@ def RndDouble():
   TWO29 = 536870912.0		#2 ^ 29
   rnd_state=RND_A*(rnd_state%RND_Q)-RND_R*(rnd_state/RND_Q)
   if rnd_state<0:
-	  rnd_state=rnd_state+RND_M
+    rnd_state=rnd_state+RND_M
   r_hi = int(rnd_state) & 0x1ffffffc
   rnd_state=RND_A*(rnd_state%RND_Q)-RND_R*(rnd_state/RND_Q)
   if rnd_state<0:
