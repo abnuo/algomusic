@@ -174,7 +174,6 @@ if __name__ == "__main__":
   except:
     title = gentitle()
   sound.stop_all_effects()
-  print(sys.argv)
   if sys.argv[0].startswith("/private/"):
     title = input("> ")
     if title == "":
