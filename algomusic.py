@@ -191,8 +191,10 @@ if __name__ == "__main__":
   print(tomml(song))
   midi = tomidi(song)
   fn = f"{str(int(blitzrand.RndSeed())&0xffff).zfill(5)}.mid"
-  with open(fn,"wb") as f:
-    midi.writeFile(f)
+  save = input("Save? (Y/N)")
+  if save.upper() == "Y":
+    with open(fn,"wb") as f:
+      midi.writeFile(f)
   print("Saved to",fn)
   for x in threads:
     x.join()
