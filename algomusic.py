@@ -66,7 +66,6 @@ try:
   title = sys.argv[1]
 except:
   title = random.choice(words.words()).capitalize()+" "+random.choice(words.words()).capitalize()
-speed = 1
 
 def play(song,instrument,speed):
   for i,v in enumerate(song):
@@ -80,7 +79,7 @@ def play(song,instrument,speed):
     except:
       pass
 def generate(seed):
-  global title,speed
+  song = []
   random.seed(seed)
   title = seed
   speed = random.uniform(0.5,2.0)
@@ -95,19 +94,20 @@ def generate(seed):
       else:
         snotes.append("r")
     song.append((cinst,snotes))
-def printinfo():
+  return (speed,song)
+def printinfo(song):
   print(f"Song entitled \"{title}\"")
-  print(f"Speed: {speed} ({round(speed*150)} BPM)")
-  for i in song:
+  print(f"Speed: {song[0]} ({round(song[0]*150)} BPM)")
+  for i in song[1]:
     print(i[0])
-def playsong():
+def playsong(song,speed):
   for i in song:
     x = threading.Thread(target=play,args=(i[1],i[0],speed))
     threads.append(x)
     x.start()
 def tomml(song):
-  mml = f"t{round(speed*150)} l8 "
-  for i in song:
+  mml = f"t{round(song[0]*150)} l8 "
+  for i in song[1]:
     if i[0] in mmlinstr:
       mml += mmlinstr[i[0]]+" "
     mml += "<"+"".join(i[1])+";"
@@ -115,10 +115,10 @@ def tomml(song):
 
 if __name__ == "__main__":
   sound.stop_all_effects()
-  generate(title)
-  printinfo()
+  song = generate(title)
+  printinfo(song)
   try:
-    playsong()
+    playsong(song[1],song[0])
   except:
     pass
   print(tomml(song))
