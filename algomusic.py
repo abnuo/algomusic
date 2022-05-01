@@ -122,7 +122,7 @@ def play2(song,instrument,speed,chn=0):
       data = io.BytesIO(instr.readframes(instr.getnframes()))
       #data = [struct.unpack("<h",bytes([v,data[i+1]]))[0] for i,v in enumerate(data[:-1])]
       data,sr = sf.read(data,channels=1,samplerate=44100,dtype="int16",subtype="PCM_16",endian="LITTLE",format="RAW")
-      sd.play(data,sr*pitches[note],1)
+      sd.play(data,(sr*2)*pitches[note],1)
     time.sleep(random.choice(delays)/speed)
     try:
       sound.stop_effect(effect)
@@ -214,7 +214,6 @@ if __name__ == "__main__":
     sound
     threads = playsong(song[1],song[0])
   except:
-    print("meme")
     threads = playsong(song[1],song[0],play2)
   print(tomml(song))
   midi = tomidi(song)
@@ -223,6 +222,6 @@ if __name__ == "__main__":
   if save.upper() == "Y":
     with open(fn,"wb") as f:
       midi.writeFile(f)
-  print("Saved to",fn)
+    print("Saved to",fn)
   for x in threads:
     x.join()
