@@ -130,7 +130,7 @@ def play2(song,instrument,speed,chn=0):
       sd.play(data,sr*pitches[note],1)
     time.sleep(random.choice(delays)/speed)
     try:
-      sound.stop_effect(effect)
+      pass
     except:
       pass
 def play(song,instrument,speed,chn=0):
