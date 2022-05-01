@@ -1,3 +1,4 @@
+NumPy
 nltk
 MIDIUtil
 sounddevice
