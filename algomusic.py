@@ -7,12 +7,15 @@ import blitzrand
 import glob
 import struct
 import math
+import io
 import numpy as np
 from midiutil import MIDIFile
+import wave
 try:
   import sound
 except:
-  pass
+  import sounddevice as sd
+  import soundfile as sf
 import nltk
 try:
   from nltk.corpus import words
@@ -105,7 +108,27 @@ midinstr = {
 }
 midinotes = [72,74,76,77,79]
 
-def play(song,instrument,speed):
+def speedx(sound_array,factor):
+  indices = np.round(np.arange(0, len(sound_array),factor))
+  indices = indices[indices<len(sound_array)].astype(np.int16)
+  return sound_array[indices.astype(int)]
+def play2(song,instrument,speed,chn=0):
+  print("Whipdo",instrument)
+  for i,v in enumerate(song):
+    if not v == "r":
+      note = notes.index(v)
+      #note = 4
+      instr = wave.open(instrument,"rb")
+      data = io.BytesIO(instr.readframes(instr.getnframes()))
+      #data = [struct.unpack("<h",bytes([v,data[i+1]]))[0] for i,v in enumerate(data[:-1])]
+      data,sr = sf.read(data,channels=1,samplerate=44100,dtype="int16",subtype="PCM_16",endian="LITTLE",format="RAW")
+      sd.play(data,sr*pitches[note],1)
+    time.sleep(random.choice(delays)/speed)
+    try:
+      sound.stop_effect(effect)
+    except:
+      pass
+def play(song,instrument,speed,chn=0):
   for i,v in enumerate(song):
     if not v == "r":
       note = notes.index(v)
@@ -119,7 +142,7 @@ def play(song,instrument,speed):
 def generate(seed):
   song = []
   if not type(seed) == int:
-    blitzrand.SeedRnd(hash(seed))
+    blitzrand.SeedRnd(int.from_bytes(seed.encode("utf-8"),"little"))
   else:
     blitzrand.SeedRnd(seed)
   title = seed
@@ -141,10 +164,10 @@ def printinfo(song):
   print(f"Speed: {song[0]} ({round(song[0]*150)} BPM)")
   for i in song[1]:
     print(i[0])
-def playsong(song,speed):
+def playsong(song,speed,func=play):
   threads = []
-  for i in song:
-    x = threading.Thread(target=play,args=(i[1],i[0],speed))
+  for i,v in enumerate(song):
+    x = threading.Thread(target=func,args=(v[1],v[0],speed,i))
     threads.append(x)
     x.start()
   return threads
@@ -177,7 +200,10 @@ if __name__ == "__main__":
     title = sys.argv[1]
   except:
     title = gentitle()
-  sound.stop_all_effects()
+  try:
+    sound.stop_all_effects()
+  except:
+    pass
   if sys.argv[0].startswith("/private/"):
     title = input("> ")
     if title == "":
@@ -185,9 +211,11 @@ if __name__ == "__main__":
   song = generate(title)
   printinfo(song)
   try:
+    sound
     threads = playsong(song[1],song[0])
   except:
-    pass
+    print("meme")
+    threads = playsong(song[1],song[0],play2)
   print(tomml(song))
   midi = tomidi(song)
   fn = f"{str(int(blitzrand.RndSeed())&0xffff).zfill(5)}.mid"
