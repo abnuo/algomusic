@@ -31,7 +31,7 @@ pitchlists = {
 pitches = pitchlists["normal"]
 delays = [0.2]
 soundsdir = "music"
-sounds = glob.glob(f"{soundsdir}/*.wav")
+sounds = [i.replace("\\","/") for i in glob.glob(f"{soundsdir}/*.wav")]
 mmlinstr = {
   f"{soundsdir}/bass1.wav": "@4 @n0 @E1,0,5,0,0",
   f"{soundsdir}/bass2.wav": "@4 @n90 @E1,0,5,0,0",
@@ -108,12 +108,17 @@ midinstr = {
 }
 midinotes = [72,74,76,77,79]
 
+def hashstr(s):
+  hash=0
+  for ch in s:
+    hash = (hash*281 ^ ord(ch)*997) & 0xFFFFFFFF
+  return hash
 def speedx(sound_array,factor):
   indices = np.round(np.arange(0, len(sound_array),factor))
   indices = indices[indices<len(sound_array)].astype(np.int16)
   return sound_array[indices.astype(int)]
 def play2(song,instrument,speed,chn=0):
-  print("Whipdo",instrument)
+  #Playback is choppy
   for i,v in enumerate(song):
     if not v == "r":
       note = notes.index(v)
@@ -122,7 +127,7 @@ def play2(song,instrument,speed,chn=0):
       data = io.BytesIO(instr.readframes(instr.getnframes()))
       #data = [struct.unpack("<h",bytes([v,data[i+1]]))[0] for i,v in enumerate(data[:-1])]
       data,sr = sf.read(data,channels=1,samplerate=44100,dtype="int16",subtype="PCM_16",endian="LITTLE",format="RAW")
-      sd.play(data,(sr*2)*pitches[note],1)
+      sd.play(data,sr*pitches[note],1)
     time.sleep(random.choice(delays)/speed)
     try:
       sound.stop_effect(effect)
@@ -142,7 +147,7 @@ def play(song,instrument,speed,chn=0):
 def generate(seed):
   song = []
   if not type(seed) == int:
-    blitzrand.SeedRnd(int.from_bytes(seed.encode("utf-8"),"little"))
+    blitzrand.SeedRnd(hashstr(seed))
   else:
     blitzrand.SeedRnd(seed)
   title = seed
