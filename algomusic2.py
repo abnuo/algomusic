@@ -7,7 +7,7 @@ def Read():
   global pointer
   pointer=(pointer+1)%len(data)
   return data[pointer]
-def Restore()
+def Restore():
   global pointer
   pointer=0
 
